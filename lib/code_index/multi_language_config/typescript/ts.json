@@ -1,0 +1,39 @@
+{
+  ".ts": {
+    "function": {
+      "types": "function_declaration",
+      "nameField": "name"
+    },
+    "anonymousFunction": {
+      "types": "arrow_function",
+      "parentTypes": ["variable_declarator", "pair", "assignment_expression"],
+      "nameFromParentField": "name"
+    },
+    "method": {
+      "types": ["method_definition", "method_signature"],
+      "nameField": "name"
+    },
+    "class": {
+      "types": ["class_declaration", "class"],
+      "nameField": "name",
+      "bodyField": "body"
+    },
+    "interface": {
+      "types": "interface_declaration",
+      "nameField": "name"
+    },
+    "import": {
+      "types": ["import_statement", "import_equals_declaration"]
+    },
+    "call": {
+      "types": "call_expression",
+      "functionField": "function",
+      "argumentsField": "arguments"
+    },
+    "member": {
+      "types": "member_expression",
+      "objectField": "object",
+      "propertyField": "property"
+    }
+  }
+}

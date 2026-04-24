@@ -1,0 +1,35 @@
+{
+    ".py": {
+        "function": {
+            "types": "function_definition",
+            "nameField": "name"
+        },
+        "anonymousFunction": {
+            "types": "lambda",
+            "parentTypes": ["assignment", "keyword_argument"],
+            "nameFromParentField": "left"
+        },
+        "method": {
+            "types": "function_definition",
+            "nameField": "name"
+        },
+        "class": {
+            "types": "class_definition",
+            "nameField": "name",
+            "bodyField": "body"
+        },
+        "import": {
+            "types": ["import_statement", "import_from_statement"]
+        },
+        "call": {
+            "types": "call",
+            "functionField": "function",
+            "argumentsField": "arguments"
+        },
+        "member": {
+            "types": "attribute",
+            "objectField": "object",
+            "propertyField": "attribute"
+        }
+    }
+}
