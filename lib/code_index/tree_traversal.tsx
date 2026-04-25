@@ -1,5 +1,5 @@
 import { Node } from "web-tree-sitter";
-import { getClassTypes, getFunctionType, getInterfaceTypes, getMethodTypes } from "./multi_language_config/config";
+import { getClassTypes, getFunctionType, getInterfaceTypes, getMethodTypes } from "../multi_language_config/config";
 
 
 export function collectDescendants(

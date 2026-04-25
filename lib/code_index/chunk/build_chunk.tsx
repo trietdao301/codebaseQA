@@ -1,5 +1,5 @@
   import path from "path";
-import {getClassNameField, getClassTypes, getFunctionNameField, getFunctionType, getInterfaceNameField, getInterfaceTypes, getMethodNameField, getMethodTypes } from "../multi_language_config/config";
+import {getClassNameField, getClassTypes, getFunctionNameField, getFunctionType, getInterfaceNameField, getInterfaceTypes, getMethodNameField, getMethodTypes } from "../../multi_language_config/config";
 import {Node} from "web-tree-sitter";
 import { Chunk, ChunkType } from "./chunk";
 import { getLanguageByExtension } from "@/lib/utils";
