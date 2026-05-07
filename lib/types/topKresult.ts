@@ -1,7 +1,7 @@
-import { Chunk } from "../index/semantic/code_index/chunk/chunk";
+import { Chunk } from "../db/schema";
 
 export type TopKResult = {
-    id: string;
-    score: number;
-    payload: Chunk;
-}
+  id: string;
+  score: number;
+  payload: Chunk;
+};
