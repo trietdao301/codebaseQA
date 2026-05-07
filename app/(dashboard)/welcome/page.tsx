@@ -3,13 +3,16 @@ import HowItWorks from "./component/HowItWorks";
 import Projects from "./component/Projects";
 import TopBar from "./component/TopBar";
 import { ScrollProvider } from "./context/ScrollContext";
+import { Suspense } from "react";
 
 export default function Welcome() {
   return (
     <div className="flex flex-col min-h-[700px] ">
       <ScrollProvider>
         <TopBar />
-        <Content />
+        <Suspense fallback={null}>
+          <Content />
+        </Suspense>
         <Projects />
         <HowItWorks />
         <BottomAside />
