@@ -1,8 +1,15 @@
 // hooks/useIndexRepo.ts
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 type StreamEvent = {
-  type: "clone_started" | "clone_completed" | "index_progress" | "index_completed" | "done" | "error";
+  type:
+    | "clone_started"
+    | "clone_completed"
+    | "index_progress"
+    | "index_completed"
+    | "done"
+    | "error";
   message: string;
   repoUrl?: string;
   localPath?: string;
@@ -30,6 +37,7 @@ export function useIndexRepo() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const queryClient = useQueryClient();
 
   function appendLog(entry: Omit<LogEntry, "id">) {
     setLogs((prev) => [...prev, { ...entry, id: crypto.randomUUID() }]);
@@ -77,8 +85,15 @@ export function useIndexRepo() {
         const fileText = event.file ? ` - ${event.file}` : "";
         const stageText = event.stage ? ` [${event.stage}]` : "";
 
-        if (event.type === "clone_completed" || event.type === "index_completed" || event.type === "done") {
-          appendLog({ tone: "success", text: `${event.message}${stageText}${countText}${fileText}` });
+        if (
+          event.type === "clone_completed" ||
+          event.type === "index_completed" ||
+          event.type === "done"
+        ) {
+          appendLog({
+            tone: "success",
+            text: `${event.message}${stageText}${countText}${fileText}`,
+          });
         } else if (event.type === "error") {
           sawTerminalEvent = true;
           appendLog({ tone: "error", text: event.message });
@@ -89,7 +104,10 @@ export function useIndexRepo() {
             localPath: event.localPath,
           });
         } else {
-          appendLog({ tone: "info", text: `${event.message}${stageText}${countText}${fileText}` });
+          appendLog({
+            tone: "info",
+            text: `${event.message}${stageText}${countText}${fileText}`,
+          });
         }
 
         if (event.type === "done") {
@@ -100,6 +118,7 @@ export function useIndexRepo() {
             repoUrl: event.repoUrl,
             localPath: event.localPath,
           });
+          queryClient.invalidateQueries({ queryKey: ["projects"] }); // ← invalidate here
         }
       }
 
@@ -156,7 +175,10 @@ export function useIndexRepo() {
         });
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to reach the clone API. Try again.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to reach the clone API. Try again.";
       appendLog({ tone: "error", text: message });
       setResult({ success: false, error: message });
     } finally {

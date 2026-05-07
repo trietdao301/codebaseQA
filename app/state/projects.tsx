@@ -13,9 +13,9 @@ export const useProjects = () => {
         throw new Error(
           `Supabase read failed: ${error.message} (code: ${error.code})`,
         );
-      const projects: Project[] = data.map((project) => ({
+      const projects: Project[] = data.map((project: Project) => ({
         id: project.id,
-        repo_url: project.repo_url,
+        github_repo_url: project.github_repo_url,
         number_of_files: project.number_of_files,
         number_of_vectors: project.number_of_vectors,
         number_of_indexed_lines: project.number_of_indexed_lines,

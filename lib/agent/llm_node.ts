@@ -21,7 +21,6 @@ You have access to the following tools:
 - vector_search: semantically search for relevant code chunks
 - read_file: read the full content of a specific file
 - grep_search: search for an exact keyword or pattern across files
-- find_all_references: find everywhere a symbol is used in the codebase
 
 ## Question Category
 The user's question has been classified as: **${category}**
@@ -37,7 +36,8 @@ ${STRATEGY[category]}
 - Never "try a likely extension" in read_file. Use verified paths only.
 - If read_file returns "File not found", you MUST call list_files_and_directories_in_codebase next to locate the exact path, then retry read_file with that exact path.
 - Do NOT hallucinate code or behavior — only answer based on what you find in the codebase.
-- If you cannot find the answer after using the appropriate tools, say so honestly.
+- If you cannot find the answer after using the appropriate tools, say so honestly. 
+- You must use both search tools (vector_search and grep_search) to find the answer, before saying that you cannot find the answer.
 - Keep answers concise and grounded in the actual code you read.
 `;
 

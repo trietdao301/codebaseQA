@@ -12,6 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@assistant-ui/core": "^0.1.17",
     "@assistant-ui/react": "^0.12.28",
     "@assistant-ui/react-langchain": "^0.0.4",
     "@assistant-ui/react-langgraph": "^0.13.12",
@@ -38,6 +39,7 @@
     "dotenv": "^17.4.2",
     "exec-async": "^2.2.0",
     "geist": "^1.7.0",
+    "inngest": "^4.3.0",
     "lucide-react": "^1.14.0",
     "monaco-editor": "^0.55.1",
     "next": "16.2.2",

@@ -16,6 +16,7 @@ import {
   ToolGroupRoot,
   ToolGroupTrigger,
 } from "@/components/tool-group";
+import { useEffect, useState } from "react";
 import { ToolFallback } from "@/components/tool-fallback";
 import { TooltipIconButton } from "@/components/tooltip-icon-button";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import {
   MessagePrimitive,
   SuggestionPrimitive,
   ThreadPrimitive,
+  useAui,
   useAuiState,
 } from "@assistant-ui/react";
 import {
@@ -40,12 +42,19 @@ import {
   ChevronRightIcon,
   CopyIcon,
   DownloadIcon,
+  FileTextIcon,
   MoreHorizontalIcon,
   PencilIcon,
   RefreshCwIcon,
+  SparklesIcon,
   SquareIcon,
+  UserIcon,
+  WrenchIcon,
 } from "lucide-react";
 import type { FC } from "react";
+import { useCodeSnippetStore } from "@/app/state/codeSnippet";
+
+import { File } from "@/components/file";
 
 export const Thread: FC = () => {
   return (
@@ -57,6 +66,7 @@ export const Thread: FC = () => {
         ["--composer-padding" as string]: "10px",
       }}
     >
+      <ThreadScrollToBottom />
       <ThreadPrimitive.Viewport
         turnAnchor="top"
         data-slot="aui_thread-viewport"
@@ -154,6 +164,33 @@ const ThreadSuggestionItem: FC = () => {
 };
 
 const Composer: FC = () => {
+  const aui = useAui();
+  const { codeSnippets, removeCodeSnippet } = useCodeSnippetStore();
+
+  useEffect(() => {
+    if (codeSnippets.length === 0) return;
+
+    const composer = aui.thread().composer();
+    const existingText = composer.getState().text.trimEnd();
+    const snippetBlocks = codeSnippets
+      .map((snippet) => {
+        const lineLabel =
+          snippet.startLine === snippet.endLine
+            ? `L${snippet.startLine}`
+            : `L${snippet.startLine}-L${snippet.endLine}`;
+        return `File: ${snippet.file}\nLines: ${lineLabel}\n\`\`\`\n${snippet.code}\n\`\`\``;
+      })
+      .join("\n\n");
+
+    composer.setText(
+      existingText ? `${existingText}\n\n${snippetBlocks}` : snippetBlocks,
+    );
+
+    for (const snippet of codeSnippets) {
+      removeCodeSnippet(snippet.id);
+    }
+  }, [aui, codeSnippets, removeCodeSnippet]);
+
   return (
     <ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col">
       <ComposerPrimitive.AttachmentDropzone asChild>
@@ -228,7 +265,7 @@ const AssistantMessage: FC = () => {
   // for pt-[n] use -mb-[n + 6] & min-h-[n + 6] to preserve compensation
   const ACTION_BAR_PT = "pt-1.5";
   const ACTION_BAR_HEIGHT = `-mb-7.5 min-h-7.5 ${ACTION_BAR_PT}`;
-
+  const [isToolGroupOpen, setIsToolGroupOpen] = useState(false);
   return (
     <MessagePrimitive.Root
       data-slot="aui_assistant-message-root"
@@ -263,9 +300,13 @@ const AssistantMessage: FC = () => {
                   </ReasoningRoot>
                 );
               }
-              case "group-tool":
+              case "group-tool": {
                 return (
-                  <ToolGroupRoot>
+                  <ToolGroupRoot
+                    variant="ghost"
+                    onOpenChange={setIsToolGroupOpen}
+                    className="rounded-lg py-5 my-5"
+                  >
                     <ToolGroupTrigger
                       count={part.indices.length}
                       active={part.status.type === "running"}
@@ -273,6 +314,7 @@ const AssistantMessage: FC = () => {
                     <ToolGroupContent>{children}</ToolGroupContent>
                   </ToolGroupRoot>
                 );
+              }
               case "text":
                 return <MarkdownText />;
               case "reasoning":
@@ -357,7 +399,13 @@ const UserMessage: FC = () => {
 
       <div className="aui-user-message-content-wrapper relative col-start-2 min-w-0">
         <div className="aui-user-message-content wrap-break-word peer rounded-2xl border border-[#2a2f3a] bg-[#1a1e25] px-4 py-2.5 text-zinc-100 empty:hidden">
-          <MessagePrimitive.Parts />
+          <MessagePrimitive.Parts>
+            {({ part }) => {
+              if (part.type === "file") return <File {...part} />;
+              if (part.type === "text") return <MarkdownText />;
+              return null;
+            }}
+          </MessagePrimitive.Parts>
         </div>
         <div className="aui-user-action-bar-wrapper absolute start-0 top-1/2 -translate-x-full -translate-y-1/2 pe-2 peer-empty:hidden rtl:translate-x-full">
           <UserActionBar />

@@ -3,7 +3,7 @@ import { promisify } from "node:util";
 import { execFile } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { getSupabaseServerClient } from "../client/supabase_server";
+import { getSupabaseServiceClient } from "../client/supabase_service";
 import { CodeLine } from "../db/schema";
 
 export type GrepMatch = {
@@ -20,16 +20,18 @@ export async function grepSearchInDirectory(
   try {
     const matches: GrepMatch[] = [];
 
-    const supabase = await getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
     const { data, error } = await supabase
       .from("code_lines")
       .select("*")
-      .eq("github_repo_url", githubRepoUrl)
-      .like("content", `%${keyword}%`);
+      .like("content", `%${keyword}%`)
+      .eq("github_repo_url", githubRepoUrl);
+
     if (error) {
       throw error;
     }
-    const result: CodeLine[] = data.map((line) => ({
+    const rows = (data ?? []) as CodeLine[];
+    const result: CodeLine[] = rows.map((line) => ({
       id: line.id,
       content: line.content,
       relative_path: line.relative_path,
@@ -46,7 +48,6 @@ export async function grepSearchInDirectory(
     }
     return matches;
   } catch (error: any) {
-    if (!error.stderr) return [];
     throw error;
   }
 }

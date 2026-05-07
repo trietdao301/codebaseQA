@@ -20,6 +20,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Inngest (Cloud)
+
+This project serves Inngest functions from the Next.js route handler at `app/api/inngest/route.ts` (path: `/api/inngest`).
+
+To use **Inngest Cloud**, set these environment variables:
+
+- `INNGEST_DEV=0` (or leave it unset; the SDK defaults to cloud mode)
+- `INNGEST_EVENT_KEY=...` (Inngest Cloud event key)
+- `INNGEST_SIGNING_KEY=...` (Inngest Cloud signing key)
+
+If you're developing locally but want Cloud to call your dev server, expose your dev server with a tunnel and set:
+
+- `INNGEST_SERVE_ORIGIN=https://<your-public-origin>`
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
