@@ -18,7 +18,8 @@ export function RealTimeProgress({ runId, onDone }: Props) {
     [runId],
   );
 
-  const { messages, connectionStatus, runStatus } = useRealtime({
+  const { messages, connectionStatus, runStatus, error } = useRealtime({
+    pauseOnHidden: false,
     channel: ch,
     topics,
     token: getToken,
@@ -28,7 +29,7 @@ export function RealTimeProgress({ runId, onDone }: Props) {
   useEffect(() => {
     console.log("RealtimeProgress mounted, runId:", runId);
     return () => console.log("RealtimeProgress UNMOUNTED");
-  }, []);
+  }, [runId]);
 
   const eventMessages = useMemo(
     () =>
@@ -62,32 +63,32 @@ export function RealTimeProgress({ runId, onDone }: Props) {
     if (isDone || isFailed) {
       onDone();
     }
-  }, [isDone, isFailed]);
+  }, [isDone, isFailed, onDone]);
 
   return (
     <>
-      {eventMessages.length > 0 && (
-        <div className="mt-8 w-full max-w-lg mx-auto rounded-xl border border-neutral-800 overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border-b border-neutral-800">
-            <span
-              className={`w-2 h-2 rounded-full ${toneDotColor[latestTone] ?? "bg-neutral-500"}`}
-            />
-            <span className="text-xs text-neutral-500 font-mono flex-1">
-              indexing output
+      <div className="mt-8 w-full max-w-lg mx-auto rounded-xl border border-neutral-800 overflow-hidden">
+        <div className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border-b border-neutral-800">
+          <span
+            className={`w-2 h-2 rounded-full ${toneDotColor[latestTone] ?? "bg-neutral-500"}`}
+          />
+          <span className="text-xs text-neutral-500 font-mono flex-1">
+            indexing output
+          </span>
+          <span className="text-[10px] uppercase tracking-wide text-neutral-400">
+            {statusLabel.replaceAll("_", " ")}
+          </span>
+          <span className="text-[10px] uppercase tracking-wide text-neutral-500">
+            {connectionStatus}/{runStatus}
+          </span>
+        </div>
+        <div className="max-h-64 overflow-y-auto bg-black/40 p-4 font-mono text-left space-y-2 custom-scrollbar scrollbar-thin scrollbar-thumb-neutral-700/80 hover:scrollbar-thumb-neutral-500 scrollbar-track-transparent">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] text-neutral-500">
+              {eventMessages.length} event message
+              {eventMessages.length > 1 ? "s" : ""}
             </span>
-            <span className="text-[10px] uppercase tracking-wide text-neutral-400">
-              {statusLabel.replaceAll("_", " ")}
-            </span>
-            <span className="text-[10px] uppercase tracking-wide text-neutral-500">
-              {connectionStatus}/{runStatus}
-            </span>
-          </div>
-          <div className="max-h-64 overflow-y-auto bg-black/40 p-4 font-mono text-left space-y-2 custom-scrollbar scrollbar-thin scrollbar-thumb-neutral-700/80 hover:scrollbar-thumb-neutral-500 scrollbar-track-transparent">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] text-neutral-500">
-                {eventMessages.length} event message
-                {eventMessages.length > 1 ? "s" : ""}
-              </span>
+            {eventMessages.length > 8 && (
               <button
                 type="button"
                 onClick={() => setShowAllEvents((v) => !v)}
@@ -95,26 +96,36 @@ export function RealTimeProgress({ runId, onDone }: Props) {
               >
                 {showAllEvents ? "Show latest 8" : "Show all"}
               </button>
+            )}
+          </div>
+          {error && (
+            <div className="text-xs leading-5 text-red-300">
+              Realtime connection error: {error.message}
             </div>
-            {visibleEventMessages.map((m, i) => (
-              <div
-                key={`${m.message}-${i}`}
-                className="flex items-start gap-2 text-xs leading-5 border-b border-neutral-900 pb-2"
-              >
-                <span className="shrink-0 mt-1 text-neutral-600">›</span>
-                <div className="flex-1">
-                  <div className="text-neutral-300">{m.message}</div>
-                  <div className="mt-1 text-[10px] text-neutral-500">
-                    {m.stage
-                      ? m.stage.replaceAll("_", " ")
-                      : (m.status ?? "event")}
-                  </div>
+          )}
+          {eventMessages.length === 0 && !error && (
+            <div className="text-xs leading-5 text-neutral-500">
+              Waiting for realtime events...
+            </div>
+          )}
+          {visibleEventMessages.map((m, i) => (
+            <div
+              key={`${m.message}-${i}`}
+              className="flex items-start gap-2 text-xs leading-5 border-b border-neutral-900 pb-2"
+            >
+              <span className="shrink-0 mt-1 text-neutral-600">›</span>
+              <div className="flex-1">
+                <div className="text-neutral-300">{m.message}</div>
+                <div className="mt-1 text-[10px] text-neutral-500">
+                  {m.stage
+                    ? m.stage.replaceAll("_", " ")
+                    : (m.status ?? "event")}
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
 
       {(isDone || isFailed) && (
         <div

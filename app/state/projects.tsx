@@ -31,7 +31,13 @@ export const useProjects = () => {
 // store/currentProject.ts
 import { create } from "zustand";
 
-export const useSelectedProjectStore = create((set) => ({
+type SelectedProjectStore = {
+  selectedProject: Project | null;
+  setSelectedProject: (project: Project | null) => void;
+  reset: () => void;
+};
+
+export const useSelectedProjectStore = create<SelectedProjectStore>((set) => ({
   selectedProject: null,
   setSelectedProject: (project: Project | null) =>
     set({ selectedProject: project }),

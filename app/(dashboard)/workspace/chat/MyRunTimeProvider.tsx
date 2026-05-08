@@ -1,6 +1,6 @@
 "use client";
 
-import { AssistantCloud, AssistantRuntimeProvider } from "@assistant-ui/react";
+import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import {
   unstable_createLangGraphStream,
   useLangGraphRuntime,
@@ -8,21 +8,19 @@ import {
 import {
   createThread,
   deleteThread,
-  getAllThreads,
   getThreadState,
 } from "@/lib/chatApi/api";
 import { LangChainMessage } from "@assistant-ui/react-langgraph";
 import { useEffect, useMemo, useRef } from "react";
 import { Client } from "@langchain/langgraph-sdk";
 import { useSelectedProjectStore } from "@/app/state/projects";
-import { ThreadList } from "@/components/thread-list";
 
 export const createClient = () => {
+  const configuredApiUrl = process.env["NEXT_PUBLIC_LANGGRAPH_API_URL"];
   const apiUrl =
-    process.env["NEXT_PUBLIC_LANGGRAPH_API_URL"] ||
-    (typeof window !== "undefined"
-      ? new URL("/api", window.location.href).href
-      : "/api");
+    typeof window !== "undefined"
+      ? new URL(configuredApiUrl || "/langgraph", window.location.href).href
+      : configuredApiUrl || "/langgraph";
   return new Client({ apiUrl });
 };
 
@@ -32,7 +30,7 @@ export function MyRuntimeProvider({
   children: React.ReactNode;
 }>) {
   const selectedProject = useSelectedProjectStore(
-    (state: any) => state.selectedProject,
+    (state) => state.selectedProject,
   );
   const selectedProjectRef = useRef(selectedProject);
   useEffect(() => {
@@ -54,10 +52,11 @@ export function MyRuntimeProvider({
   const runtime = useLangGraphRuntime({
     stream,
     create: async () => {
-      const { thread_id } = await createThread(
-        selectedProjectRef.current?.github_repo_url,
-        client,
-      );
+      const repoUrl = selectedProjectRef.current?.github_repo_url;
+      if (!repoUrl) {
+        throw new Error("Select a project before starting chat.");
+      }
+      const { thread_id } = await createThread(repoUrl, client);
       return { externalId: thread_id };
     },
     load: async (externalId) => {
