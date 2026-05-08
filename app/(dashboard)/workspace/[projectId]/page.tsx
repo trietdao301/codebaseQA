@@ -20,6 +20,7 @@ import { getLanguageByExtension } from "@/lib/utils";
 import { ChatPanel } from "../chat/ChatPanel";
 import { useRouter } from "next/navigation";
 import { useCodeSnippetStore } from "@/app/state/codeSnippet";
+import { v4 as uuidv4 } from "uuid";
 
 type TreeResponse = {
   success: boolean;
@@ -170,7 +171,7 @@ export default function WorkspacePage({
     const startLine = selectionButton.startLine;
     const endLine = selectionButton.endLine;
     addCodeSnippet({
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       code: selectionButton.code,
       file: selectedFile,
       startLine,

@@ -1,6 +1,7 @@
 // hooks/useIndexRepo.ts
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { v4 as uuidv4 } from "uuid";
 
 type StreamEvent = {
   type:
@@ -40,7 +41,7 @@ export function useIndexRepo() {
   const queryClient = useQueryClient();
 
   function appendLog(entry: Omit<LogEntry, "id">) {
-    setLogs((prev) => [...prev, { ...entry, id: crypto.randomUUID() }]);
+    setLogs((prev) => [...prev, { ...entry, id: uuidv4() }]);
   }
 
   async function indexRepo(url: string) {
